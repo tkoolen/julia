@@ -555,7 +555,7 @@ static jl_value_t *eval_body(jl_array_t *stmts, interpreter_state *s, int start,
     return NULL;
 }
 
-jl_value_t *jl_interpret_call(jl_lambda_info_t *lam, jl_value_t **args, uint32_t nargs, jl_svec_t *sparam_vals)
+jl_value_t *jl_interpret_call(jl_lambda_info_t *lam, jl_value_t *const *args, uint32_t nargs, jl_svec_t *sparam_vals)
 {
     jl_array_t *stmts = (jl_array_t*)lam->code;
     assert(jl_typeis(stmts, jl_array_any_type));

@@ -450,7 +450,7 @@ function which(f::ANY, t::ANY)
         return first(ms)
     else
         ft = isa(f,Type) ? Type{f} : typeof(f)
-        m = ccall(:jl_gf_invoke_lookup, Any, (Any,), Tuple{ft, t.parameters...})
+        m = ccall(:jl_gf_invoke_lookup, Any, (Any, UInt), Tuple{ft, t.parameters...}, typemax(UInt))
         if m === nothing
             error("no method found for the specified argument types")
         end
@@ -525,7 +525,8 @@ end
 function method_exists(f::ANY, t::ANY)
     t = to_tuple_type(t)
     t = Tuple{isa(f,Type) ? Type{f} : typeof(f), t.parameters...}
-    return ccall(:jl_method_exists, Cint, (Any, Any), typeof(f).name.mt, t) != 0
+    return ccall(:jl_method_exists, Cint, (Any, Any, UInt), typeof(f).name.mt, t,
+        ccall(:jl_get_world_counter, Int32, ())) != 0
 end
 
 function isambiguous(m1::Method, m2::Method)

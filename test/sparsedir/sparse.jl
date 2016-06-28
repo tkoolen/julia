@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@test "sparse" begin
 @test issparse(sparse(ones(5,5)))
 @test !issparse(ones(5,5))
 @test Base.SparseArrays.indtype(sparse(ones(Int8,2),ones(Int8,2),rand(2))) == Int8
@@ -460,21 +459,15 @@ end
 @test maximum(sparse(-ones(3,3))) == -1
 @test minimum(sparse(ones(3,3))) == 1
 
-# Unary functions
-a = sprand(5,15, 0.5)
-afull = full(a)
-for op in (:sin, :cos, :tan, :ceil, :floor, :abs, :abs2)
-    @eval begin
-        @test ($op)(afull) == full($(op)(a))
+@testset "Unary functions" begin
+    a = sprand(5,15, 0.5)
+    for op in (sin, cos, tan, ceil, floor, abs, abs2)
+        @test op(full(a)) == convert(Array, op(a))
+    end
+    for op in (ceil, floor)
+        @test op(Int,full(a)) == convert(Array, op(Int,a))
     end
 end
-
-for op in (:ceil, :floor)
-    @eval begin
-        @test ($op)(Int,afull) == full($(op)(Int,a))
-    end
-end
-
 
 # getindex tests
 ni = 23
@@ -1588,4 +1581,3 @@ end
 # Test temporary fix for issue #16548 in PR #16979. Brittle. Expect to remove with `\` revisions.
 @test which(\, (SparseMatrixCSC, AbstractVecOrMat)).module == Base.SparseArrays
 
-end

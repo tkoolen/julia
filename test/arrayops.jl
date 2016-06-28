@@ -1702,8 +1702,6 @@ for op in (:.+, :.*, :.÷, :.%, :.<<, :.>>, :.-, :./, :.\, :.//, :.^)
     @eval @test typeof($(op)(A,A)) == Matrix{Foo}
 end
 
-end
-
 # Test that concatenations of dense matrices/vectors yield dense matrices/vectors
 let
     N = 4
@@ -1724,4 +1722,6 @@ let
     @test isa(hvcat((2,), densevec, densemat), Array)
     @test isa(cat((1,2), densemat, densevec), Array)
     @test isa(cat((1,2), densevec, densemat), Array)
+end
+
 end

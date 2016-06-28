@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+@testset "pkg" begin
 import Base.Pkg.PkgError
 
 function temp_pkg_dir(fn::Function, remove_tmp_dir::Bool=true)
@@ -473,4 +474,6 @@ temp_pkg_dir() do
         @test ret === nothing && out == ""
         @test contains(err, nothingtodomsg)
     end
+end
+
 end

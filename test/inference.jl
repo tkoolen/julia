@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+@testset "inference" begin
 # tests for Core.Inference correctness and precision
 
 # issue 9770
@@ -269,3 +270,4 @@ function f17572{A}(::Type{Val{A}})
 end
 # test that inference doesn't error
 @test isa(code_typed(f17572, (Type{Val{0}},)), Array)
+end

@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+@testset "ambiguous" begin
 # DO NOT ALTER ORDER OR SPACING OF METHODS BELOW
 const lineoffset = @__LINE__ + 0 # XXX: __LINE__ at the end of a line is off-by-one
 ambig(x, y) = 1
@@ -186,3 +187,4 @@ end
 @test length(detect_ambiguities(Ambig7)) == 1
 
 nothing
+end

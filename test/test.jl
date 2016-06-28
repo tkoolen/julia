@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+@testset "test" begin
 # Test @test
 @test true
 @test 1 == 1

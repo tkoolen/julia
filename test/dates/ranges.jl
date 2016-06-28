@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+@testset "ranges" begin
 function test_all_combos()
     for T in (Dates.Date,Dates.DateTime)
         f1 = T(2014); l1 = T(2013,12,31)
@@ -419,6 +420,8 @@ testlengths(100000)
 # Custom definition to override default step of DateTime ranges
 @test typeof(step(Dates.DateTime(2000):Dates.DateTime(2001))) == Dates.Day
 
+a = Dates.Date(2013,1,1)
+b = Dates.Date(2013,2,1)
 d = Dates.Date(2020,1,1)
 @test length(a:Dates.Year(1):d) == 8
 @test first(a:Dates.Year(1):d) == a
@@ -433,6 +436,8 @@ d = Dates.Date(2020,1,1)
 @test first(a:Dates.Day(365):d) == a
 @test last(a:Dates.Day(365):d) == Dates.Date(2019,12,31)
 
+a = Dates.Date(2013,1,1)
+b = Dates.Date(2013,2,1)
 @test length(a:Dates.Year(1):Dates.Date(2020,2,1)) == 8
 @test length(a:Dates.Year(1):Dates.Date(2020,6,1)) == 8
 @test length(a:Dates.Year(1):Dates.Date(2020,11,1)) == 8
@@ -498,4 +503,5 @@ lastdaysofmonth = [Dates.Date(2014,i,Dates.daysinmonth(2014,i)) for i=1:12]
 let d = Dates.Day(1)
     @test (Dates.Date(2000):d:Dates.Date(2001))+d == (Dates.Date(2000)+d:d:Dates.Date(2001)+d)
     @test (Dates.Date(2000):d:Dates.Date(2001))-d == (Dates.Date(2000)-d:d:Dates.Date(2001)-d)
+end
 end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "givens" begin
 debug = false
 
 # Test givens rotations
@@ -70,5 +69,4 @@ for elty in (Float32, Float64, Complex64, Complex128)
         @test (G*x)[4] ≈ r
         @test abs((G*x)[2]) < eps(real(elty))
     end
-end
 end

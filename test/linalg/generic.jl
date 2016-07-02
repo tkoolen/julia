@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "generic" begin
 import Base: *
 
 # A custom Quaternion type with minimal defined interface and methods.
@@ -285,4 +284,3 @@ end
 
 # Issue 17650
 @test [0.01311489462160816, Inf] ≈ [0.013114894621608135, Inf]
-end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "umfpack" begin
 se33 = speye(3)
 do33 = ones(3)
 @test isequal(se33 \ do33, do33)
@@ -135,5 +134,4 @@ let
     @test_throws ArgumentError Base.SparseArrays.UMFPACK.solve!(a, lufact(speye(5,5)), a, Base.SparseArrays.UMFPACK.UMFPACK_A)
     aa = complex(a)
     @test_throws ArgumentError Base.SparseArrays.UMFPACK.solve!(aa, lufact(complex(speye(5,5))), aa, Base.SparseArrays.UMFPACK.UMFPACK_A)
-end
 end

@@ -19,6 +19,13 @@ function move_to_node1(t)
 end
 # Base.compile only works from node 1, so compile test is handled specially
 move_to_node1("compile")
+move_to_node1("enums")
+move_to_node1("docs")
+move_to_node1("dates")
+move_to_node1("string")
+move_to_node1("core")
+move_to_node1("loading")
+move_to_node1("subarray")
 # In a constrained memory environment, run the parallel test after all other tests
 # since it starts a lot of workers and can easily exceed the maximum memory
 max_worker_rss != typemax(Csize_t) && move_to_node1("parallel")
@@ -32,7 +39,6 @@ cd(dirname(@__FILE__)) do
     end
 
     @everywhere include("testdefs.jl")
-
     results=[]
     @sync begin
         for p in workers()
@@ -43,7 +49,7 @@ cd(dirname(@__FILE__)) do
                     try
                         resp = remotecall_fetch(t -> runtests(t), p, test)
                     catch e
-                        resp = e
+                        resp = [e]
                     end
                     push!(results, (test, resp))
                     if (isa(resp, Integer) && (resp > max_worker_rss)) || isa(resp, Exception)
@@ -62,7 +68,6 @@ cd(dirname(@__FILE__)) do
     end
     # Free up memory =)
     n > 1 && rmprocs(workers(), waitfor=5.0)
-
     for t in node1_tests
         n > 1 && print("\tFrom worker 1:\t")
         test, resp = runtests(t)
@@ -72,14 +77,29 @@ cd(dirname(@__FILE__)) do
     o_ts = Base.Test.DefaultTestSet("Overall")
     Base.Test.push_testset(o_ts)
     for res in results
-        Base.Test.push_testset(res[2][1])
-        push!(o_ts.results, res[2][1])
-        Base.Test.pop_testset()
+        if isa(res[2][1], Exception)
+             Base.showerror(STDERR,res[2][1])
+        elseif isa(res[2][1], Base.Test.DefaultTestSet)
+             Base.Test.push_testset(res[2][1])
+             Base.Test.record(o_ts, res[2][1])
+             Base.Test.pop_testset()
+        end
     end
+    println()
     Base.Test.print_test_results(o_ts,1)
     for res in results
-        println("Tests for $(res[1]) took $(res[2][2]) seconds, of which $(res[2][4]) were spent in gc ($(100*res[2][4]/res[2][2]) % ), and allocated $(res[2][3]) bytes.")
+        if !isa(res[2][1], Exception)
+            println("Tests for $(res[1]) took $(res[2][2]) seconds, of which $(res[2][4]) were spent in gc ($(100*res[2][4]/res[2][2]) % ), and allocated $(res[2][3]) bytes.")
+        else
+            o_ts.anynonpass = true
+        end
     end
 
-    println("    \033[32;1mSUCCESS\033[0m")
+    if !o_ts.anynonpass
+        println("    \033[32;1mSUCCESS\033[0m")
+    else
+        println("    \033[31;1mFAILURE\033[0m")
+        Base.Test.print_test_errors(o_ts)
+        error()
+    end
 end

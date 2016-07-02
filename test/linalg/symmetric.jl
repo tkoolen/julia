@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "symmetric" begin
 srand(101)
 debug = false #Turn on for more debugging info
 
@@ -234,5 +233,4 @@ end
 let A = Symmetric(randn(5,5))
     B = -A
     @test A + B ≈ zeros(5,5)
-end
 end

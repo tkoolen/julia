@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "resolve" begin
 using Base.Pkg.Types
 using Base.Pkg.Query
 using Base.Pkg.Resolve
@@ -533,4 +532,3 @@ reqs_data = Any[
 want = resolve_tst(deps_data, reqs_data)
 @test want == Dict("A"=>v"1", "B"=>v"2", "C"=>v"2", "D"=>v"2", "E"=>v"2")
 
-end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "reducedim" begin
 # main tests
 
 function safe_mapslices(op, A, region)
@@ -154,5 +153,4 @@ for region in Any[-1, 0, (-1, 2), [0, 1], (1,-2,3), [0 1;
     @test_throws ArgumentError sumabs2(Areduc, region)
     @test_throws ArgumentError maxabs(Areduc, region)
     @test_throws ArgumentError minabs(Areduc, region)
-end
 end

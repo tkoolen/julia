@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "bitarray" begin
 tc{N}(r1::NTuple{N}, r2::NTuple{N}) = all(x->tc(x...), [zip(r1,r2)...])
 tc{N}(r1::BitArray{N}, r2::Union{BitArray{N},Array{Bool,N}}) = true
 tc{T}(r1::T, r2::T) = true
@@ -1353,5 +1352,3 @@ B = trues(Int64(10))
 A = falses(Int32(10))
 B = falses(Int64(10))
 @test A == B
-
-end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "error" begin
 let
     function foo_error(c, n)
         c[1] += 1
@@ -56,5 +55,4 @@ let
     @test typeof(ex) == ErrorException
     @test ex.msg == "foo"
     @test c[1] == 1
-end
 end

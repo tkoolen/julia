@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "spqr" begin
 using Base.SparseArrays.SPQR
 using Base.SparseArrays.CHOLMOD
 
@@ -58,5 +57,4 @@ serialize(b, F)
 seekstart(b)
 @test_throws ArgumentError deserialize(b)\ones(10)
 
-end
 end

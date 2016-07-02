@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "reflection" begin
 # code_native / code_llvm (issue #8239)
 # It's hard to really test these, but just running them should be
 # sufficient to catch segfault bugs.
@@ -531,5 +530,4 @@ if is_windows()
     end
 else
     @test isnull(h16850)
-end
 end

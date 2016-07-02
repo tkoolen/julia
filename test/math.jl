@@ -1,5 +1,4 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
-@testset "math" begin
 @testset "clamp" begin
     @test clamp(0, 1, 3) == 1
     @test clamp(1, 1, 3) == 1
@@ -882,4 +881,3 @@ end
 
 @test Base.Math.f32(complex(1.0,1.0)) == complex(Float32(1.),Float32(1.))
 @test Base.Math.f16(complex(1.0,1.0)) == complex(Float16(1.),Float16(1.))
-end

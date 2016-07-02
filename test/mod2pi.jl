@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "mod2pi" begin
 # NOTES on range reduction
 # [1] compute numbers near pi: http://www.cs.berkeley.edu/~wkahan/testpi/nearpi.c
 # [2] range reduction: http://hal-ujm.ccsd.cnrs.fr/docs/00/08/69/04/PDF/RangeReductionIEEETC0305.pdf
@@ -196,4 +195,3 @@ testModPi()
 @test mod2pi(Int64(2)^60) == mod2pi(2.0^60)
 @test_throws ArgumentError mod2pi(Int64(2)^60-1)
 
-end

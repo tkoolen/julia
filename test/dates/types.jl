@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "types" begin
 # Date internal algorithms
 @test Dates.totaldays(0,2,28) == -307
 @test Dates.totaldays(0,2,29) == -306
@@ -173,4 +172,3 @@ ms = Dates.Millisecond(1)
 @test isfinite(Dates.Date)
 @test isfinite(Dates.DateTime)
 
-end

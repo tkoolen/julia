@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "datafmt" begin
 # countlines
 @test countlines(IOBuffer("\n")) == 1
 @test countlines(IOBuffer("\n"),'\r') == 0
@@ -262,5 +261,4 @@ for writefunc in ((io,x) -> show(io, "text/csv", x),
         seek(io, 0)
         @test vec(readcsv(io)) == x
     end
-end
 end

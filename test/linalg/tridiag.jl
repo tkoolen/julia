@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "tridiag" begin
 debug = false
 
 # basic tridiagonal operations
@@ -462,4 +461,3 @@ SymTridiagonal([1, 2], [0])^3 == [1 0; 0 8]
 @test SymTridiagonal(1:3, 1:2) == [1 1 0; 1 2 2; 0 2 3]
 @test Tridiagonal(4:5, 1:3, 1:2) == [1 1 0; 4 2 2; 0 5 3]
 
-end

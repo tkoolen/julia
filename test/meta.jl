@@ -1,8 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "meta" begin
-module MetaTest
-
 function f(x)
     y = x+5
     z = y*y
@@ -97,6 +94,7 @@ for m in [:foo1, :foo2, :foo3, :foo4, :foo5]
 end
 @test Base.findmeta(multi_meta.args)[1] == 0
 
+<<<<<<< dded901f9920e361a86e54e4ca7238185e48c3da
 # Test that pushmeta! can push across other macros,
 # in the case multiple pushmeta!-based macros are combined
 
@@ -114,13 +112,7 @@ body.args = Base.uncompressed_ast(ast)
 @test popmeta!(body, :test) == (true, [42])
 @test popmeta!(body, :nonexistent) == (false, [])
 
-end
-
-
 # tests to fully cover functions in base/meta.jl
-module MetaJLtest
-
-using Base.Meta
 
 @test isexpr(:(1+1),Set([:call]))
 @test isexpr(:(1+1),Vector([:call]))
@@ -131,5 +123,3 @@ show_sexpr(ioB,:(1+1))
 
 show_sexpr(ioB,QuoteNode(1),1)
 
-end
-end

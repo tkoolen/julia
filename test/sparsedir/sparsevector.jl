@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "sparsevector" begin
 ### Data
 
 spv_x1 = SparseVector(8, [2, 5, 6], [1.25, -0.75, 3.5])
@@ -1043,4 +1042,3 @@ end
 
 @test issparse([sprand(10,.1)  rand(10)])
 @test issparse([sprand(10,.1); rand(10)])
-end

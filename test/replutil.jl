@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "replutil" begin
 function test_have_color(buf, color, no_color)
     if Base.have_color
         @test takebuf_string(buf) == color
@@ -447,5 +446,4 @@ let d = Dict(1 => 2, 3 => 45)
     for el in d
         @test contains(replace(result, " ", ""), string(el))
     end
-end
 end

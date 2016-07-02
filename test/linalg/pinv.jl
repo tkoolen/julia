@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "pinv" begin
 debug = false
 
 function hilb(T::Type, n::Integer)
@@ -319,5 +318,4 @@ for eltya in (Float32, Float64)
     a = pinv(Diagonal([realmin(eltya); realmin(eltya)]/100*(1+1im)))
     @test a.diag[1] ≈ 0.0
     @test a.diag[2] ≈ 0.0
-end
 end

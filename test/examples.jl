@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "examples" begin
 dir = joinpath(JULIA_HOME, Base.DOCDIR, "examples")
 
 include(joinpath(dir, "bubblesort.jl"))
@@ -87,4 +86,3 @@ if !zmq_found
 end
 
 include(joinpath(dir, "clustermanager/0mq/ZMQCM.jl"))
-end

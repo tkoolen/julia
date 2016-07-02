@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "arnoldi" begin
 debug = false
 
 debug && println("eigs")
@@ -232,4 +231,3 @@ svds(rand(1:10, 10, 8))
 @test_throws MethodError eigs(big(rand(1:10, 10, 10)), rand(1:10, 10, 10))
 @test_throws MethodError svds(big(rand(1:10, 10, 8)))
 
-end

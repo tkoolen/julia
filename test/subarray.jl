@@ -488,4 +488,3 @@ u = (1,2:3)
 let size=(x,y)-> error("should not happen")
     @test X[1:end,2,2] == @view X[1:end,2,2]
 end
-end

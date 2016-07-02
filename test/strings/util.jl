@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "util" begin
 # padding (lpad and rpad)
 @test lpad("foo", 3) == "foo"
 @test rpad("foo", 3) == "foo"
@@ -235,4 +234,3 @@ bin_val = hex2bytes("07bf")
 #non-hex characters
 @test_throws ArgumentError hex2bytes("0123456789abcdefABCDEFGH")
 
-end

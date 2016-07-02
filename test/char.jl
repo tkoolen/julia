@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "char" begin
 @test typemin(Char) == Char(0)
 @test ndims(Char) == 0
 @test getindex('a', 1) == 'a'
@@ -194,4 +193,3 @@ let
 end
 
 @test !isequal('x', 120)
-end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "llvmcall" begin
 using Base.llvmcall
 
 #function add1234(x::Tuple{Int32,Int32,Int32,Int32})
@@ -179,5 +178,4 @@ if VersionNumber(Base.libllvm_version) >= v"3.6" # llvm 3.6 changed the syntax f
     code_llvm(DevNull, foo, ())
 else
     println("INFO: skipping gep parentage test on llvm < 3.6")
-end
 end

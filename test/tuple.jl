@@ -1,8 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
-@testset "tuple" begin
-
 @testset "indexing" begin
-    @test length(()) != 0
+    @test length(()) == 0
     @test length((1,)) === 1
     @test length((1,2)) === 2
 
@@ -169,6 +167,4 @@ for n = 0:20
     for i = 1:n
         @test t[i] == i
     end
-end
-
 end

@@ -1,7 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "fastmath" begin
-
 # check expansions
 
 @test macroexpand(:(@fastmath 1+2)) == :(Base.FastMath.add_fast(1,2))
@@ -201,5 +199,4 @@ let a = ones(2,2), b = ones(2,2)
     # test fallthrough for unsupported ops
     local c = 0
     @test Bool((@fastmath c |= 1))
-end
 end

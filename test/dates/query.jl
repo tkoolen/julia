@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "query" begin
 # Name functions
 jan = Dates.DateTime(2013,1,1) #Tuesday
 feb = Dates.DateTime(2013,2,2) #Saturday
@@ -199,4 +198,3 @@ end
 @test Dates.dayofquarter(Dates.DateTime(2014,9,30)) == 92
 @test Dates.dayofquarter(Dates.DateTime(2014,12,31)) == 92
 
-end

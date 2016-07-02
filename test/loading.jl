@@ -1,6 +1,7 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "loading" begin
+
+
 @test @__LINE__ == 5
 
 include("test_sourcepath.jl")
@@ -28,5 +29,4 @@ end
 let paddedname = "Ztest_sourcepath.jl"
     filename = SubString(paddedname, 2, length(paddedname))
     @test Base.find_in_path(filename) == abspath(paddedname[2:end])
-end
 end

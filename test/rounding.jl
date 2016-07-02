@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "rounding" begin
 # Small sanity tests to ensure changing the rounding of float functions work
 
 ## Float64 checks
@@ -138,4 +137,3 @@ badness = 1//0
 @test_throws DivideError round(Int64,badness,RoundNearestTiesAway)
 @test_throws DivideError round(Int64,badness,RoundNearestTiesUp)
 
-end

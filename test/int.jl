@@ -1,8 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "int" begin
 # Test integer conversion routines from int.jl
-
 
 for y in (-4, Float32(-4), -4.0, big(-4.0))
     @test flipsign(3, y)  == -3
@@ -196,5 +194,3 @@ end
 @test true << 2 === 1 << 2
 @test true >> 2 === 1 >> 2
 @test true >>> 2 === 1 >>> 2
-
-end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "cholmod" begin
 srand(123)
 
 using Base.SparseArrays.CHOLMOD
@@ -653,4 +652,3 @@ A = sprandn(5,5,0.4) |> t -> t't + I
 B = complex(randn(5,2), randn(5,2))
 @test cholfact(A)\B ≈ A\B
 
-end

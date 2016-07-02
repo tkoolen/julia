@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "profile" begin
 function busywait(t, n_tries)
     iter = 0
     while iter < n_tries && Profile.len_data() == 0
@@ -32,5 +31,4 @@ let iobuf = IOBuffer()
     @test !isempty(takebuf_string(iobuf))
     Profile.clear()
     @test isempty(Profile.fetch())
-end
 end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "io" begin
 # string escaping & unescaping
 cx = Any[
     0x00000000      '\0'        "\\0"
@@ -185,4 +184,3 @@ join(myio, "", "", 1)
 @test Base.unindent("\n\t\n    \tfoo",4) == "\n    \n    foo"
 @test Base.unindent("\n\tfoo\tbar",4) == "\n    foo     bar"
 
-end

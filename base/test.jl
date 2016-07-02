@@ -421,20 +421,32 @@ record(ts::DefaultTestSet, t::Union{Pass,Broken}) = (push!(ts.results, t); t)
 # For the other result types, immediately print the error message
 # but do not terminate. Print a backtrace.
 function record(ts::DefaultTestSet, t::Union{Fail, Error})
-    print_with_color(:white, ts.description, ": ")
-    print(t)
-    # don't print the backtrace for Errors because it gets printed in the show
-    # method
-    isa(t, Error) || Base.show_backtrace(STDOUT, backtrace())
-    println()
+    if myid() == 1
+        print_with_color(:white, ts.description, ": ")
+        print(t)
+        # don't print the backtrace for Errors because it gets printed in the show
+        # method
+        isa(t, Error) || Base.show_backtrace(STDERR, backtrace())
+        println()
+    end
     push!(ts.results, t)
-    t
+    t, isa(t, Error) || backtrace()
 end
 
 # When a DefaultTestSet finishes, it records itself to its parent
 # testset, if there is one. This allows for recursive printing of
 # the results at the end of the tests
 record(ts::DefaultTestSet, t::AbstractTestSet) = push!(ts.results, t)
+
+function print_test_errors(ts::DefaultTestSet)
+    for t in ts.results
+        if (isa(t, Error) || isa(t, Fail)) && myid() == 1
+            Base.show(STDERR,t)
+        elseif isa(t, DefaultTestSet)
+            print_test_errors(t)
+        end
+    end
+end
 
 function print_test_results(ts::DefaultTestSet, depth_pad=0)
     # Calculate the overall number for each type so each of

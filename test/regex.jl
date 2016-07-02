@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "regex" begin
 function collect_eachmatch(re, str, overlap=false)
     [m.match for m in collect(eachmatch(re, str, overlap))]
 end
@@ -49,4 +48,3 @@ end
 @test replace("abcde", r"(..)(?P<byname>d)", s"\g<byname>xy\\\1") == "adxy\\bce"
 @test_throws ErrorException replace("a", r"(?P<x>)", s"\g<y>")
 
-end

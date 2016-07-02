@@ -1,7 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "lineedit" begin
-
 using Base.LineEdit
 isdefined(:TestHelpers) || include(joinpath(dirname(@__FILE__), "TestHelpers.jl"))
 using TestHelpers
@@ -402,5 +400,4 @@ let
     s = LineEdit.refresh_multi_line(termbuf, term, buf,
         Base.LineEdit.InputAreaState(0,0), "julia> ", indent = 7)
     @test s == Base.LineEdit.InputAreaState(3,1)
-end
 end

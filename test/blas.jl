@@ -2,7 +2,6 @@
 
 import Base.LinAlg, Base.LinAlg.BlasReal, Base.LinAlg.BlasComplex
 
-@testset "blas" begin
 srand(100)
 # syr2k! and her2k!
 for elty in (Float32, Float64, Complex64, Complex128)
@@ -301,4 +300,3 @@ for elty in [Float32, Float64, Complex64, Complex128]
     end
 end
 
-end

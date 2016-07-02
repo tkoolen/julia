@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "printf" begin
 # int
 @test (@sprintf "%d" typemax(Int64)) == "9223372036854775807"
 @test (@sprintf "%a" typemax(Int64)) == "0x7.fffffffffffffffp+60"
@@ -247,4 +246,3 @@ end
 # @printf
 @test_throws ArgumentError eval(:(@printf 1))
 
-end

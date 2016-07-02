@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "UTF8" begin
 ## Test for CESU-8 sequences
 
 let ch = 0x10000
@@ -43,4 +42,3 @@ end
 ## Specifically check UTF-8 string whose lead byte is same as a surrogate
 @test convert(String, b"\xed\x9f\xbf") == "\ud7ff"
 
-end

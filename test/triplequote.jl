@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "triplequote" begin
 # triple-quote delimited strings
 @test """abc""" == "abc"
 @test """ab"c""" == "ab\"c"
@@ -68,4 +67,3 @@ s = "   p"
       $("\n      ")
       """ == "\n      $(nl)"
 
-end

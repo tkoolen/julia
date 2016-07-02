@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "lapack" begin
 import Base.LinAlg.BlasInt
 
 @test_throws ArgumentError Base.LinAlg.LAPACK.chkside('Z')
@@ -571,5 +570,4 @@ end
 # Issue 14065 (and 14220)
 let A = [NaN NaN; NaN NaN]
     @test_throws ArgumentError eigfact(A)
-end
 end

@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "svd" begin
 debug = false
 
 using Base.LinAlg: BlasComplex, BlasFloat, BlasReal, QRPivoted
@@ -80,5 +79,4 @@ for eltya in (Float32, Float64, Complex64, Complex128, Int)
         @test gsvd[:U]*gsvd[:D1]*gsvd[:R]*gsvd[:Q]' ≈ b
         @test gsvd[:V]*gsvd[:D2]*gsvd[:R]*gsvd[:Q]' ≈ c
     end
-end
 end

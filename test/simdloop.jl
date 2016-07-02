@@ -1,6 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-@testset "simdloop" begin
 function simd_loop_example_from_manual(x, y, z)
     s = zero(eltype(z))
     n = min(length(x),length(y),length(z))
@@ -139,4 +138,3 @@ end
 @test 2001000 == simd_sum_over_array(collect(1:2000))
 @test 2001000 == simd_sum_over_array(Float32[i+j*500 for i=1:500, j=0:3])
 
-end

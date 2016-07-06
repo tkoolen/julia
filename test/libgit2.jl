@@ -370,9 +370,9 @@ mktempdir() do dir
                 @test_throws BoundsError status[length(status)+1]
                 #we've added a file - show that it is new
                 @test status[1].status == LibGit2.Consts.STATUS_WT_NEW
+                close(repo_file)
             finally
                 finalize(repo)
-                close(repo_file)
             end
     end
 

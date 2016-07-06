@@ -5,6 +5,7 @@
 # sufficient to catch segfault bugs.
 
 module ReflectionTest
+using Base.Test
 
 function test_ast_reflection(freflect, f, types)
     @test !isempty(freflect(f, types))
@@ -51,7 +52,6 @@ end # module ReflectionTest
 # code_warntype
 module WarnType
 using Base.Test
-
 function warntype_hastag(f, types, tag)
     iob = IOBuffer()
     code_warntype(iob, f, types)

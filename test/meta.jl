@@ -113,7 +113,8 @@ body.args = Base.uncompressed_ast(ast)
 @test popmeta!(body, :nonexistent) == (false, [])
 
 # tests to fully cover functions in base/meta.jl
-
+import Base.Meta.isexpr
+import Base.Meta.show_sexpr
 @test isexpr(:(1+1),Set([:call]))
 @test isexpr(:(1+1),Vector([:call]))
 @test isexpr(1,:call)==false

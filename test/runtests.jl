@@ -24,8 +24,13 @@ move_to_node1("docs")
 move_to_node1("dates")
 move_to_node1("string")
 move_to_node1("core")
+move_to_node1("int")
+move_to_node1("broadcast")
 move_to_node1("loading")
+move_to_node1("reflection")
 move_to_node1("subarray")
+move_to_node1("mmap")
+move_to_node1("inference")
 # In a constrained memory environment, run the parallel test after all other tests
 # since it starts a lot of workers and can easily exceed the maximum memory
 max_worker_rss != typemax(Csize_t) && move_to_node1("parallel")
@@ -70,8 +75,13 @@ cd(dirname(@__FILE__)) do
     n > 1 && rmprocs(workers(), waitfor=5.0)
     for t in node1_tests
         n > 1 && print("\tFrom worker 1:\t")
-        test, resp = runtests(t)
-        push!(results, (test, resp))
+        local resp
+        try
+            resp = runtests(t)
+        catch e
+            resp = [e]
+        end
+        push!(results, (t, resp))
     end
 
     o_ts = Base.Test.DefaultTestSet("Overall")

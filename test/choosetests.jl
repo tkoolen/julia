@@ -16,8 +16,8 @@ Upon return, `tests` is a vector of fully-expanded test names, and
 function choosetests(choices = [])
     testnames = [
         "linalg", "subarray", "core", "inference", "keywordargs", "numbers",
-        "printf", "char", "string", "triplequote", "unicode",
-        "dates", "dict", "hashing", "iobuffer", "staged", "offsetarray",
+        "printf", "char", "strings", "triplequote", "unicode",
+        "dates", "dict", "hashing", "iobuffer", "staged",
         "arrayops", "tuple", "reduce", "reducedim", "random", "abstractarray",
         "intfuncs", "simdloop", "vecelement", "blas", "sparse",
         "bitarray", "copy", "math", "fastmath", "functional",
@@ -88,6 +88,27 @@ function choosetests(choices = [])
         # specifically selected case
         filter!(x -> x != "dates", tests)
         prepend!(tests, datestests)
+    end
+
+    unicodetests = ["unicode/UnicodeError", "unicode/checkstring", "unicode/utf8proc",
+                    "unicode/utf16", "unicode/utf8", "unicode/types",
+                    "unicode/utf32"]
+    if "unicode" in skip_tests
+        filter!(x -> (x != "unicode" && !(x in unicodetests)), tests)
+    elseif "unicode" in tests
+        # specifically selected case
+        filter!(x -> x != "unicode", tests)
+        prepend!(tests, unicodetests)
+    end
+
+    stringtests = ["strings/basic", "strings/search", "strings/util",
+                   "strings/io", "strings/types"]
+    if "strings" in skip_tests
+        filter!(x -> (x != "strings" && !(x in stringtests)), tests)
+    elseif "strings" in tests
+        # specifically selected case
+        filter!(x -> x != "strings", tests)
+        prepend!(tests, stringtests)
     end
 
     net_required_for = ["socket", "parallel"]

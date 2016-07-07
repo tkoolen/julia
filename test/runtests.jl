@@ -21,7 +21,7 @@ end
 move_to_node1("compile")
 move_to_node1("enums")
 move_to_node1("docs")
-move_to_node1("dates")
+move_to_node1("dates/periods")
 move_to_node1("string")
 move_to_node1("core")
 move_to_node1("int")

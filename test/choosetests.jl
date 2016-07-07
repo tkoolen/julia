@@ -79,6 +79,16 @@ function choosetests(choices = [])
         filter!(x -> x != "linalg", tests)
         prepend!(tests, linalgtests)
     end
+    datestests = ["dates/accessors", "dates/adjusters", "dates/query",
+                  "dates/periods", "dates/ranges", "dates/types",
+                  "dates/io", "dates/arithmetic", "dates/conversions"]
+    if "dates" in skip_tests
+        filter!(x -> (x != "dates" && !(x in datestests)), tests)
+    elseif "dates" in tests
+        # specifically selected case
+        filter!(x -> x != "dates", tests)
+        prepend!(tests, datestests)
+    end
 
     net_required_for = ["socket", "parallel"]
     net_on = true

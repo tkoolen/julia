@@ -21,7 +21,9 @@ end
 move_to_node1("compile")
 move_to_node1("enums")
 move_to_node1("docs")
+move_to_node1("test")
 move_to_node1("dates/periods")
+move_to_node1("unicode/utf8proc")
 move_to_node1("strings/basic")
 move_to_node1("strings/types")
 move_to_node1("core")
@@ -84,7 +86,7 @@ cd(dirname(@__FILE__)) do
         end
         push!(results, (t, resp))
     end
-
+    println("Done running tests")
     o_ts = Base.Test.DefaultTestSet("Overall")
     Base.Test.push_testset(o_ts)
     for res in results

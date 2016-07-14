@@ -28,5 +28,9 @@ end
 
 let paddedname = "Ztest_sourcepath.jl"
     filename = SubString(paddedname, 2, length(paddedname))
-    @test Base.find_in_path(filename) == abspath(paddedname[2:end])
+    if is_unix()
+        @test Base.find_in_path(filename) == abspath(paddedname[2:end])
+    else
+        @test_broken Base.find_in_path(filename) == abspath(paddedname[2:end])
+    end
 end

@@ -18,22 +18,12 @@ function move_to_node1(t)
     end
 end
 # Base.compile only works from node 1, so compile test is handled specially
-move_to_node1("compile")
-move_to_node1("enums")
-move_to_node1("docs")
-move_to_node1("test")
-move_to_node1("dates/periods")
-move_to_node1("unicode/utf8proc")
-move_to_node1("strings/basic")
-move_to_node1("strings/types")
-move_to_node1("core")
-move_to_node1("int")
-move_to_node1("broadcast")
-move_to_node1("loading")
-move_to_node1("reflection")
-move_to_node1("subarray")
-move_to_node1("mmap")
+move_to_node1("arrayops")
 move_to_node1("inference")
+move_to_node1("compile")
+move_to_node1("math")
+move_to_node1("numbers")
+move_to_node1("broadcast")
 # In a constrained memory environment, run the parallel test after all other tests
 # since it starts a lot of workers and can easily exceed the maximum memory
 max_worker_rss != typemax(Csize_t) && move_to_node1("parallel")
@@ -86,7 +76,6 @@ cd(dirname(@__FILE__)) do
         end
         push!(results, (t, resp))
     end
-    println("Done running tests")
     o_ts = Base.Test.DefaultTestSet("Overall")
     Base.Test.push_testset(o_ts)
     for res in results
@@ -95,6 +84,13 @@ cd(dirname(@__FILE__)) do
         elseif isa(res[2][1], Base.Test.DefaultTestSet)
              Base.Test.push_testset(res[2][1])
              Base.Test.record(o_ts, res[2][1])
+             Base.Test.pop_testset()
+        elseif isa(res[2][1], Tuple{Int,Int})
+             fake = Base.Test.DefaultTestSet(res[1])
+             [Base.Test.record(fake, Base.Test.Pass(:test, nothing, nothing, nothing)) for i in 1:res[2][1][1]]
+             [Base.Test.record(fake, Base.Test.Broken(:test, nothing)) for i in 1:res[2][1][2]]
+             Base.Test.push_testset(fake)
+             Base.Test.record(o_ts, fake)
              Base.Test.pop_testset()
         end
     end

@@ -1723,5 +1723,3 @@ let
     @test isa(cat((1,2), densemat, densevec), Array)
     @test isa(cat((1,2), densevec, densemat), Array)
 end
-
-end

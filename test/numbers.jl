@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
-
+module NumbersTests
+using Base.Test
 # basic booleans
 @test true
 @test !false
@@ -2832,4 +2833,6 @@ let types = (Base.BitInteger_types..., BigInt, Bool)
             @test T === typeof(t)
         end
     end
+end
+
 end

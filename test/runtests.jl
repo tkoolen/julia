@@ -18,12 +18,7 @@ function move_to_node1(t)
     end
 end
 # Base.compile only works from node 1, so compile test is handled specially
-move_to_node1("arrayops")
-move_to_node1("inference")
 move_to_node1("compile")
-move_to_node1("math")
-move_to_node1("numbers")
-move_to_node1("broadcast")
 # In a constrained memory environment, run the parallel test after all other tests
 # since it starts a lot of workers and can easily exceed the maximum memory
 max_worker_rss != typemax(Csize_t) && move_to_node1("parallel")
@@ -50,7 +45,7 @@ cd(dirname(@__FILE__)) do
                         resp = [e]
                     end
                     push!(results, (test, resp))
-                    if (isa(resp, Integer) && (resp > max_worker_rss)) || isa(resp, Exception)
+                    if (isa(resp[end], Integer) && (resp[end] > max_worker_rss)) || isa(resp, Exception)
                         if n > 1
                             rmprocs(p, waitfor=0.5)
                             p = addprocs(1; exeflags=`--check-bounds=yes --startup-file=no --depwarn=error`)[1]
@@ -98,7 +93,7 @@ cd(dirname(@__FILE__)) do
     Base.Test.print_test_results(o_ts,1)
     for res in results
         if !isa(res[2][1], Exception)
-            println("Tests for $(res[1]) took $(res[2][2]) seconds, of which $(res[2][4]) were spent in gc ($(100*res[2][4]/res[2][2]) % ), and allocated $(res[2][3]) bytes.")
+            println("Tests for $(res[1]):\n\ttook $(res[2][2]) seconds, of which $(res[2][4]) were spent in gc ($(100*res[2][4]/res[2][2]) % ),\n\tallocated $(res[2][3]) bytes,\n\twith rss $(res[2][end])")
         else
             o_ts.anynonpass = true
         end

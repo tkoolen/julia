@@ -93,7 +93,12 @@ cd(dirname(@__FILE__)) do
     Base.Test.print_test_results(o_ts,1)
     for res in results
         if !isa(res[2][1], Exception)
-            println("Tests for $(res[1]):\n\ttook $(res[2][2]) seconds, of which $(res[2][4]) were spent in gc ($(100*res[2][4]/res[2][2]) % ),\n\tallocated $(res[2][3]) bytes,\n\twith rss $(res[2][end])")
+            rss_str = @sprintf("%7.2f",res[2][6]/2^20)
+            time_str = @sprintf("%7f",res[2][2])
+            gc_str = @sprintf("%7f",res[2][5].total_time/10^9)
+            percent_str = @sprintf("%7.2f",100*res[2][5].total_time/(10^9*res[2][2]))
+            alloc_str = @sprintf("%7.2f",res[2][3]/2^20)
+            println("Tests for $(res[1]):\n\ttook $time_str seconds, of which $gc_str were spent in gc ($percent_str % ),\n\tallocated $alloc_str MB,\n\twith rss $rss_str MB")
         else
             o_ts.anynonpass = true
         end

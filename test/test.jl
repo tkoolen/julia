@@ -32,13 +32,13 @@ a[1,1,1,1,1] = 10
 
 # Test printing of Pass results
 # Pass - constant
-@test contains(sprint(show, @test true), "Expression: true")
+#@test contains(sprint(show, @test true), "Expression: true")
 # Pass - expression
-@test contains(sprint(show, @test 10 == 2*5), "Evaluated: 10 == 10")
-@test contains(sprint(show, @test !false), "Expression: !false")
+#@test contains(sprint(show, @test 10 == 2*5), "Evaluated: 10 == 10")
+#@test contains(sprint(show, @test !false), "Expression: !false")
 # Pass - exception
-@test contains(sprint(show, @test_throws ErrorException error()),
-                "Thrown: ErrorException")
+#@test contains(sprint(show, @test_throws ErrorException error()),
+#                "Thrown: ErrorException")
 
 # Test printing of Fail results
 type NoThrowTestSet <: Base.Test.AbstractTestSet
@@ -292,7 +292,6 @@ for i in 1:6
     @test typeof(tss[i].results[4]) == CustomTestSet
     @test typeof(tss[i].results[4].results[1]) == (iseven(i) ? Pass : Fail)
 end
-<<<<<<< 47070a4eab7f8cbc462a5314403f03e542b81c76
 
 # test @inferred
 function uninferrable_function(i)

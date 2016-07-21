@@ -76,6 +76,8 @@ cd(dirname(@__FILE__)) do
     for res in results
         if isa(res[2][1], Exception)
              Base.showerror(STDERR,res[2][1])
+             @show res[1]
+             o_ts.anynonpass = true
         elseif isa(res[2][1], Base.Test.DefaultTestSet)
              Base.Test.push_testset(res[2][1])
              Base.Test.record(o_ts, res[2][1])

@@ -507,9 +507,15 @@ function finish(ts::DefaultTestSet)
     end
     # Finally throw an error as we are the outermost test set
     #print_test_results(ts)
-    #=if total != total_pass
+    passes, fails, errors, broken, c_passes, c_fails, c_errors, c_broken = get_test_counts(ts)
+    total_pass   = passes + c_passes
+    total_fail   = fails  + c_fails
+    total_error  = errors + c_errors
+    total_broken = broken + c_broken
+    total = total_pass + total_fail + total_error + total_broken
+    if total != total_pass + total_broken
         throw(TestSetException(total_pass,total_fail,total_error, total_broken))
-    end=#
+    end
 
     # return the testset so it is returned from the @testset macro
     ts

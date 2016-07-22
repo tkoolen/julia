@@ -463,11 +463,12 @@ end
 
 @testset "Unary functions" begin
     a = sprand(5,15, 0.5)
+    afull = full(a)
     for op in (sin, cos, tan, ceil, floor, abs, abs2)
-        @test op(full(a)) == convert(Array, op(a))
+        @test op(afull) == full(op(a))
     end
     for op in (ceil, floor)
-        @test op(Int,full(a)) == convert(Array, op(Int,a))
+        @test op(Int,full(a)) == full(op(Int,a))
     end
 end
 

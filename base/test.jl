@@ -426,7 +426,7 @@ function record(ts::DefaultTestSet, t::Union{Fail, Error})
         print(t)
         # don't print the backtrace for Errors because it gets printed in the show
         # method
-        isa(t, Error) || Base.show_backtrace(STDERR, backtrace())
+        isa(t, Error) || Base.show_backtrace(STDOUT, backtrace())
         println()
     end
     push!(ts.results, t)

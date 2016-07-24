@@ -368,6 +368,7 @@ type TestSetException <: Exception
     fail::Int
     error::Int
     broken::Int
+    errors_and_fails
 end
 
 function Base.show(io::IO, ex::TestSetException)
@@ -441,7 +442,7 @@ record(ts::DefaultTestSet, t::AbstractTestSet) = push!(ts.results, t)
 function print_test_errors(ts::DefaultTestSet)
     for t in ts.results
         if (isa(t, Error) || isa(t, Fail)) && myid() == 1
-            Base.show(STDERR,t)
+            Base.show(STDOUT,t)
         elseif isa(t, DefaultTestSet)
             print_test_errors(t)
         end
@@ -505,16 +506,17 @@ function finish(ts::DefaultTestSet)
         record(parent_ts, ts)
         return ts
     end
-    # Finally throw an error as we are the outermost test set
-    #print_test_results(ts)
     passes, fails, errors, broken, c_passes, c_fails, c_errors, c_broken = get_test_counts(ts)
     total_pass   = passes + c_passes
     total_fail   = fails  + c_fails
     total_error  = errors + c_errors
     total_broken = broken + c_broken
     total = total_pass + total_fail + total_error + total_broken
+    # Finally throw an error as we are the outermost test set
     if total != total_pass + total_broken
-        throw(TestSetException(total_pass,total_fail,total_error, total_broken))
+        # Get all the error/failures and bring them along for the ride
+        efs = filter_errors(ts)
+        throw(TestSetException(total_pass,total_fail,total_error, total_broken, efs))
     end
 
     # return the testset so it is returned from the @testset macro
@@ -538,6 +540,20 @@ function get_alignment(ts::DefaultTestSet, depth::Int)
     return max(ts_width, maximum(child_widths))
 end
 get_alignment(ts, depth::Int) = 0
+
+# Recursive function that fetches backtraces for any and all errors
+# or failures the testset and its children encountered
+function filter_errors(ts::DefaultTestSet)
+    efs = []
+    for t in ts.results
+        if isa(t, DefaultTestSet)
+            append!(efs, filter_errors(t))
+        elseif isa(t, Union{Fail, Error})
+            append!(efs, [t])
+        end
+    end
+    efs
+end
 
 # Recursive function that counts the number of test results of each
 # type directly in the testset, and totals across the child testsets

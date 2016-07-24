@@ -75,26 +75,37 @@ cd(dirname(@__FILE__)) do
     Base.Test.push_testset(o_ts)
     for res in results
         if isa(res[2][1], Base.Test.DefaultTestSet)
-             Base.Test.push_testset(res[2][1])
-             Base.Test.record(o_ts, res[2][1])
-             Base.Test.pop_testset()
+            Base.Test.push_testset(res[2][1])
+            Base.Test.record(o_ts, res[2][1])
+            Base.Test.pop_testset()
         elseif isa(res[2][1], Tuple{Int,Int})
-             fake = Base.Test.DefaultTestSet(res[1])
-             [Base.Test.record(fake, Base.Test.Pass(:test, nothing, nothing, nothing)) for i in 1:res[2][1][1]]
-             [Base.Test.record(fake, Base.Test.Broken(:test, nothing)) for i in 1:res[2][1][2]]
-             Base.Test.push_testset(fake)
-             Base.Test.record(o_ts, fake)
-             Base.Test.pop_testset()
+            fake = Base.Test.DefaultTestSet(res[1])
+            [Base.Test.record(fake, Base.Test.Pass(:test, nothing, nothing, nothing)) for i in 1:res[2][1][1]]
+            [Base.Test.record(fake, Base.Test.Broken(:test, nothing)) for i in 1:res[2][1][2]]
+            Base.Test.push_testset(fake)
+            Base.Test.record(o_ts, fake)
+            Base.Test.pop_testset()
+        elseif isa(res[2][1], RemoteException)
+            println("Worker $(res[2][1].pid) failed running test $(res[1]):")
+            Base.showerror(STDOUT,res[2][1].captured)
+            o_ts.anynonpass = true
+            if isa(res[2][1].captured.ex, Base.Test.TestSetException)
+                fake = Base.Test.DefaultTestSet(res[1])
+                [Base.Test.record(fake, Base.Test.Pass(:test, nothing, nothing, nothing)) for i in 1:res[2][1].captured.ex.pass]
+                [Base.Test.record(fake, Base.Test.Broken(:test, nothing)) for i in 1:res[2][1].captured.ex.broken]
+                for t in res[2][1].captured.ex.errors_and_fails
+                    Base.Test.record(fake, t)
+                end
+                Base.Test.push_testset(fake)
+                Base.Test.record(o_ts, fake)
+                Base.Test.pop_testset()
+            end
         end
     end
     println()
     Base.Test.print_test_results(o_ts,1)
     for res in results
-        if isa(res[2][1], Exception)
-             Base.showerror(STDOUT,res[2][1])
-             @show res[1]
-             o_ts.anynonpass = true
-        else
+        if !isa(res[2][1], RemoteException)
             rss_str = @sprintf("%7.2f",res[2][6]/2^20)
             time_str = @sprintf("%7f",res[2][2])
             gc_str = @sprintf("%7f",res[2][5].total_time/10^9)

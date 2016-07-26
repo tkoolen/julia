@@ -54,8 +54,10 @@ $(SUITESPARSE_OBJ_SOURCE): $(BUILDDIR)/SuiteSparse-$(SUITESPARSE_VER)/Makefile $
 	$(MAKE) -C $(dir $<) library $(SUITESPARSE_MFLAGS)
 	touch -c $@
 $(BUILDDIR)/SuiteSparse-$(SUITESPARSE_VER)/checked: $(SUITESPARSE_OBJ_SOURCE)
+ifeq ($(OS),$(BUILD_OS))
 	$(MAKE) -C $(dir $@) default $(SUITESPARSE_MFLAGS)
-	touch $@
+endif
+	echo 1 > $@
 $(SUITESPARSE_OBJ_TARGET): $(SUITESPARSE_OBJ_SOURCE)
 	mkdir -p $(BUILDDIR)/SuiteSparse-$(SUITESPARSE_VER)/lib && \
 	cd $(BUILDDIR)/SuiteSparse-$(SUITESPARSE_VER)/lib && \

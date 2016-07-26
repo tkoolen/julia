@@ -25,9 +25,7 @@ $(PCRE_SRC_TARGET): $(BUILDDIR)/pcre2-$(PCRE_VER)/config.status
 	touch -c $@
 $(BUILDDIR)/pcre2-$(PCRE_VER)/checked: $(PCRE_SRC_TARGET)
 ifeq ($(OS),$(BUILD_OS))
-ifneq ($(OS),WINNT)
-	$(MAKE) -C $(dir $@) check -j1
-endif
+	$(MAKE) -C $(dir $@) check
 endif
 	echo 1 > $@
 $(PCRE_OBJ_TARGET): $(PCRE_SRC_TARGET)

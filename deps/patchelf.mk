@@ -19,8 +19,7 @@ $(PATCHELF_SOURCE): $(BUILDDIR)/patchelf-$(PATCHELF_VER)/config.status
 	touch -c $@
 $(BUILDDIR)/patchelf-$(PATCHELF_VER)/checked: $(PATCHELF_SOURCE)
 ifeq ($(OS),$(BUILD_OS))
-	# disabled due to bug in v0.6
-	#$(MAKE) -C $(dir $@) check
+	$(MAKE) -C $(dir $@) check
 endif
 	echo 1 > $@
 $(PATCHELF_TARGET): $(PATCHELF_SOURCE)

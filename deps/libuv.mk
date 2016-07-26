@@ -40,6 +40,7 @@ $(UV_SRC_TARGET): $(BUILDDIR)/$(LIBUV_SRC_DIR)/config.status
 	touch -c $@
 $(BUILDDIR)/$(LIBUV_SRC_DIR)/checked: $(UV_SRC_TARGET)
 ifeq ($(OS),$(BUILD_OS))
+# TODO: get these passing, remove the -
 	-$(MAKE) -C $(dir $@) check
 endif
 	echo 1 > $@

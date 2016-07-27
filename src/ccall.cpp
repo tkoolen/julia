@@ -985,10 +985,10 @@ static jl_cgval_t emit_llvmcall(jl_value_t **args, size_t nargs, jl_codectx_t *c
 
         //f->dump();
         #ifndef LLVM35
-        if (verifyFunction(*f,PrintMessageAction)) {
+        if (!f->isDeclaration() && verifyFunction(*f,PrintMessageAction)) {
         #else
         llvm::raw_fd_ostream out(1,false);
-        if (verifyFunction(*f,&out)) {
+        if (!f->isDeclaration() && verifyFunction(*f,&out)) {
         #endif
             f->dump();
             jl_error("Malformed LLVM Function");
@@ -999,10 +999,12 @@ static jl_cgval_t emit_llvmcall(jl_value_t **args, size_t nargs, jl_codectx_t *c
     // we cannot reasonably inline it, so leave it there and just emit
     // a regular call
     if (!isString) {
-        static int llvmcallnumbering = 0;
-        std::stringstream name;
-        name << "jl_llvmcall" << llvmcallnumbering++;
-        f->setName(name.str());
+        if (!f->isDeclaration()) {
+            static int llvmcallnumbering = 0;
+            std::stringstream name;
+            name << "jl_llvmcall" << llvmcallnumbering++;
+            f->setName(name.str());
+        }
         f = cast<Function>(prepare_call(function_proto(f)));
     }
     else

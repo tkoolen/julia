@@ -95,6 +95,15 @@ function doubly_declared_floor(x::Float64)
 end
 @test doubly_declared_floor(4.2) ≈ 4.
 
+tt = Tuple{typeof(declared_floor), Float64}
+floor_llvmf = ccall(:jl_get_llvmf, Ptr{Void},
+                    (Any, Bool, Bool), tt,
+                    #=wrapper=#false, #=declaration=#false)
+function preexisting_floor(x::Float64)
+    llvmcall(floor_llvmf, Float64, Tuple{Float64}, x)
+end
+@test preexisting_floor(4.2) ≈ 4.
+
 function doubly_declared2_trunc(x::Float64)
     a = llvmcall(
         ("""declare double @llvm.trunc.f64(double)""",

@@ -526,7 +526,6 @@ typedef struct {
 
     llvm::DIBuilder *dbuilder;
     bool debug_enabled;
-    std::vector<CallInst*> to_inline;
 } jl_codectx_t;
 
 static jl_cgval_t emit_expr(jl_value_t *expr, jl_codectx_t *ctx);
@@ -4718,22 +4717,7 @@ static std::unique_ptr<Module> emit_function(jl_lambda_info_t *lam, jl_llvm_func
         }
     }
 
-    // step 13, Apply LLVM level inlining
-    for(std::vector<CallInst*>::iterator it = ctx.to_inline.begin(); it != ctx.to_inline.end(); ++it) {
-        Function *inlinef = (*it)->getCalledFunction();
-        assert(inlinef->getParent());
-        InlineFunctionInfo info;
-        if (!InlineFunction(*it,info))
-            jl_error("Inlining Pass failed");
-        if (inlinef->getParent())
-            inlinef->eraseFromParent();
-        else {
-            inlinef->dropAllReferences();
-            delete inlinef;
-        }
-    }
-
-    // step 14. Perform any delayed instantiations
+    // step 13. Perform any delayed instantiations
     if (ctx.debug_enabled) {
         ctx.dbuilder->finalize();
     }

@@ -561,11 +561,8 @@ mktempdir() do dir
         @test !LibGit2.checkused!(creds)
         @test !LibGit2.checkused!(creds)
         @test LibGit2.checkused!(creds)
-<<<<<<< 824f27d06e540e31bb24b4ac7a395145d28c1bdc
         @test creds.user == creds_user
         @test creds.pass == creds_pass
-    #end
-=======
         @test LibGit2.reset!(creds) == 3
         @test !LibGit2.checkused!(creds)
         @test creds.count == 2

@@ -391,3 +391,5 @@ v = OffsetArray(rand(8), (-2,))
 @test 2*A == OffsetArray(2*parent(A), A.offsets)
 @test A+A == OffsetArray(parent(A)+parent(A), A.offsets)
 @test A.*A == OffsetArray(parent(A).*parent(A), A.offsets)
+
+end

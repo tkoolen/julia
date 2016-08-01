@@ -17,7 +17,7 @@ function choosetests(choices = [])
     testnames = [
         "linalg", "subarray", "core", "inference", "keywordargs", "numbers",
         "printf", "char", "strings", "triplequote", "unicode",
-        "dates", "dict", "hashing", "iobuffer", "staged",
+        "dates", "dict", "hashing", "iobuffer", "staged", "offsetarray",
         "arrayops", "tuple", "reduce", "reducedim", "random", "abstractarray",
         "intfuncs", "simdloop", "vecelement", "blas", "sparse",
         "bitarray", "copy", "math", "fastmath", "functional",
@@ -126,9 +126,6 @@ function choosetests(choices = [])
     net_on = true
     try
         ipa = getipaddr()
-        if ipa == ip"127.0.0.1"
-            net_on = false
-        end
     catch
         warn("Networking unavailable: Skipping tests [" * join(net_required_for, ", ") * "]")
         net_on = false

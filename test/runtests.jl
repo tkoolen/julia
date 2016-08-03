@@ -1,5 +1,10 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+exename = `$(joinpath(JULIA_HOME, Base.julia_exename()))`
+if "_RR_TRACE_DIR" in keys(ENV)
+    exename = `rr -S record -h --ignore-nested $exename`
+end
+
 include("choosetests.jl")
 tests, net_on = choosetests(ARGS)
 tests = unique(tests)
@@ -27,7 +32,7 @@ cd(dirname(@__FILE__)) do
     n = 1
     if net_on
         n = min(8, Sys.CPU_CORES, length(tests))
-        n > 1 && addprocs(n; exeflags=`--check-bounds=yes --startup-file=no --depwarn=error`)
+        n > 1 && addprocs(n; exename=exename, exeflags=`--check-bounds=yes --startup-file=no --depwarn=error`)
         BLAS.set_num_threads(1)
     end
 
@@ -50,7 +55,7 @@ cd(dirname(@__FILE__)) do
                     if (isa(resp, Integer) && (resp > max_worker_rss)) || isa(resp, Exception)
                         if n > 1
                             rmprocs(p, waitfor=0.5)
-                            p = addprocs(1; exeflags=`--check-bounds=yes --startup-file=no --depwarn=error`)[1]
+                            p = addprocs(1; exename=exename, exeflags=`--check-bounds=yes --startup-file=no --depwarn=error`)[1]
                             remotecall_fetch(()->include("testdefs.jl"), p)
                         else
                             # single process testing, bail if mem limit reached, or, on an exception.

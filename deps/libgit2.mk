@@ -4,9 +4,9 @@ LIBGIT2_GIT_URL := git://github.com/libgit2/libgit2.git
 LIBGIT2_TAR_URL = https://api.github.com/repos/libgit2/libgit2/tarball/$1
 $(eval $(call git-external,libgit2,LIBGIT2,,,$(SRCDIR)/srccache))
 
-$(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-configured: $(build_prefix)/manifest/libssh2
+$(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-configured: | $(build_prefix)/manifest/libssh2
 ifneq ($(OS),WINNT)
-$(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-configured: $(build_prefix)/manifest/curl
+$(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-configured: | $(build_prefix)/manifest/curl
 endif
 
 LIBGIT2_OPTS := $(CMAKE_COMMON) -DCMAKE_BUILD_TYPE=Release -DTHREADSAFE=ON
@@ -65,23 +65,28 @@ ifeq ($(OS),$(BUILD_OS))
 endif
 	echo 1 > $@
 
-$(build_prefix)/manifest/libgit2: $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-compiled | $(build_shlibdir) $(build_prefix)/manifest
-ifeq ($(BUILD_OS),WINNT)
-	cp $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/libgit2.$(SHLIB_EXT) $(build_shlibdir)/libgit2.$(SHLIB_EXT)
+define LIBGIT2_INSTALL
+
+ifeq ($$(BUILD_OS),WINNT) # XXX: build targets should no depend on the BUILD_OS
+	mkdir -p $2/$$(build_shlibdir)
+	cp $1/libgit2.$$(SHLIB_EXT) $2/$$(build_shlibdir)/libgit2.$$(SHLIB_EXT)
 else
-	$(call make-install,$(LIBGIT2_SRC_DIR),)
+	$(call MAKE_INSTALL,$1,$2,$3)
 endif
-	$(INSTALL_NAME_CMD)libgit2.$(SHLIB_EXT) $(build_shlibdir)/libgit2.$(SHLIB_EXT)
-ifeq ($(OS),Linux)
+ifeq ($$(OS),Linux)
 	@# If we're on linux, copy over libssl and libcrypto for libgit2
-	-LIBGIT_LIBS=$$(ldd "$@" | tail -n +2 | awk '{print $$(NF-1)}'); \
+	-LIBGIT_LIBS=$$$$(ldd "$$@" | tail -n +2 | awk '{print $$$$(NF-1)}'); \
 	for LIB in libssl libcrypto; do \
-		LIB_PATH=$$(echo "$$LIBGIT_LIBS" | grep "$$LIB"); \
-		echo "LIB_PATH for $$LIB: $$LIB_PATH"; \
-		[ ! -z "$$LIB_PATH" ] && cp -v -f "$$LIB_PATH" $(build_shlibdir); \
+		LIB_PATH=$$$$(echo "$$$$LIBGIT_LIBS" | grep "$$$$LIB"); \
+		echo "LIB_PATH for $$$$LIB: $$$$LIB_PATH"; \
+		[ ! -z "$$$$LIB_PATH" ] && cp -v "$$$$LIB_PATH" $$(build_shlibdir); \
 	done
 endif
-	echo $(LIBGIT2_SHA1) > $@
+endef
+$(eval $(call staged-install, \
+	libgit2,$(LIBGIT2_SRC_DIR), \
+	LIBGIT2_INSTALL,,, \
+	$$(INSTALL_NAME_CMD)libgit2.$$(SHLIB_EXT) $$(build_shlibdir)/libgit2.$$(SHLIB_EXT)))
 
 clean-libgit2:
 	-rm -f $(build_prefix)/manifest/libgit2 $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-configured $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-compiled
@@ -91,5 +96,5 @@ get-libgit2: $(LIBGIT2_SRC_FILE)
 extract-libgit2: $(SRCDIR)/srccache/$(LIBGIT2_SRC_DIR)/source-extracted
 configure-libgit2: $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-configured
 compile-libgit2: $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-compiled
+fastcheck-libgit2: #none
 check-libgit2: $(BUILDDIR)/$(LIBGIT2_SRC_DIR)/build-checked
-install-libgit2: $(build_prefix)/manifest/libgit2

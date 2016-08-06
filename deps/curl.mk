@@ -1,6 +1,7 @@
 ## CURL ##
-$(BUILDDIR)/curl-$(CURL_VER)/build-configured: $(build_prefix)/manifest/libssh2
-$(BUILDDIR)/curl-$(CURL_VER)/build-configured: $(build_prefix)/manifest/mbedtls
+
+$(BUILDDIR)/curl-$(CURL_VER)/build-configured: | $(build_prefix)/manifest/libssh2
+$(BUILDDIR)/curl-$(CURL_VER)/build-configured: | $(build_prefix)/manifest/mbedtls
 
 ifneq ($(OS),WINNT)
 CURL_LDFLAGS := $(RPATH_ESCAPED_ORIGIN)
@@ -30,15 +31,14 @@ ifeq ($(OS),$(BUILD_OS))
 endif
 	echo 1 > $@
 
-$(build_prefix)/manifest/curl: $(BUILDDIR)/curl-$(CURL_VER)/build-compiled | $(build_prefix)/manifest
-	$(call make-install,curl-$(CURL_VER),$(LIBTOOL_CCLD))
-	$(INSTALL_NAME_CMD)libcurl.$(SHLIB_EXT) $(build_shlibdir)/libcurl.$(SHLIB_EXT)
-	echo $(CURL_VER) > $@
+$(eval $(call staged-install, \
+	curl,curl-$$(CURL_VER), \
+	MAKE_INSTALL,$$(LIBTOOL_CCLD),, \
+	$$(INSTALL_NAME_CMD)libcurl.$$(SHLIB_EXT) $$(build_shlibdir)/libcurl.$$(SHLIB_EXT)))
 
 clean-curl:
 	-rm -rf $(build_prefix)/manifest/curl \
 		$(BUILDDIR)/curl-$(CURL_VER)/build-configured $(BUILDDIR)/curl-$(CURL_VER)/build-compiled
-	-rm -f $(build_shlibdir)/libcurl*
 	-$(MAKE) -C $(BUILDDIR)/curl-$(CURL_VER) clean
 
 distclean-curl:
@@ -48,5 +48,5 @@ get-curl: $(SRCDIR)/srccache/curl-$(CURL_VER).tar.bz2
 extract-curl: $(SRCDIR)/srccache/curl-$(CURL_VER)/source-extracted
 configure-curl: $(BUILDDIR)/curl-$(CURL_VER)/build-configured
 compile-curl: $(BUILDDIR)/curl-$(CURL_VER)/build-compiled
+fastcheck-curl: #none
 check-curl: $(BUILDDIR)/curl-$(CURL_VER)/build-checked
-install-curl: $(build_prefix)/manifest/curl

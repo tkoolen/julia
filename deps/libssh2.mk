@@ -4,7 +4,7 @@ LIBSSH2_GIT_URL := git://github.com/libssh2/libssh2.git
 LIBSSH2_TAR_URL = https://api.github.com/repos/libssh2/libssh2/tarball/$1
 $(eval $(call git-external,libssh2,LIBSSH2,,,$(SRCDIR)/srccache))
 
-$(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-configured: $(build_prefix)/manifest/mbedtls
+$(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-configured: | $(build_prefix)/manifest/mbedtls
 
 LIBSSH2_OPTS := $(CMAKE_COMMON) -DBUILD_SHARED_LIBS=ON -DBUILD_EXAMPLES=OFF \
 				-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib
@@ -46,22 +46,19 @@ ifeq ($(OS),$(BUILD_OS))
 endif
 	echo 1 > $@
 
-$(build_prefix)/manifest/libssh2: $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-compiled | $(build_shlibdir) $(build_prefix)/manifest
-ifeq ($(BUILD_OS),WINNT)
-	$(MAKE) -C $(BUILDDIR)/$(LIBSSH2_SRC_DIR) install
-else
-	$(call make-install,$(LIBSSH2_SRC_DIR),)
-endif
-	$(INSTALL_NAME_CMD)libssh2.$(SHLIB_EXT) $(build_shlibdir)/libssh2.$(SHLIB_EXT)
-	echo $(LIBSSH2_SHA1) > $@
+$(eval $(call staged-install, \
+	libssh2,$(LIBSSH2_SRC_DIR), \
+	MAKE_INSTALL,,, \
+	$$(INSTALL_NAME_CMD)libssh2.$$(SHLIB_EXT) $$(build_shlibdir)/libssh2.$$(SHLIB_EXT)))
 
 clean-libssh2:
-	-rm -f $(build_prefix)/manifest/libssh2 $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-configured $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-compiled
+	-rm $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-configured $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-compiled
 	-$(MAKE) -C $(BUILDDIR)/$(LIBSSH2_SRC_DIR) clean
+
 
 get-libssh2: $(LIBSSH2_SRC_FILE)
 extract-libssh2: $(SRCDIR)/srccache/$(LIBSSH2_SRC_DIR)/source-extracted
 configure-libssh2: $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-configured
 compile-libssh2: $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-compiled
+fastcheck-libssh2: check-libssh2
 check-libssh2: $(BUILDDIR)/$(LIBSSH2_SRC_DIR)/build-checked
-install-libssh2: $(build_prefix)/manifest/libssh2

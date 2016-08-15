@@ -282,6 +282,10 @@ I,J,N = findnz(z)
 @test J == [0]
 @test N == [2]
 
+@test vecnorm(v) == vecnorm(parent(v))
+@test vecnorm(A) == vecnorm(parent(A))
+@test vecdot(v, v) == vecdot(v0, v0)
+
 v  = OffsetArray([1,1e100,1,-1e100], (-3,))*1000
 v2 = OffsetArray([1,-1e100,1,1e100], (5,))*1000
 @test isa(v, OffsetArray)

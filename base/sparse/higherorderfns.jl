@@ -93,7 +93,8 @@ end
 # (3) broadcast[!] entry points
 broadcast(f::Tf, A::SparseVector) where {Tf} = _noshapecheck_map(f, A)
 broadcast(f::Tf, A::SparseMatrixCSC) where {Tf} = _noshapecheck_map(f, A)
-function broadcast!(f::Tf, C::SparseVecOrMat) where Tf
+
+function broadcast!(f::Tf, C::SparseVecOrMat, ::Void) where Tf
     isempty(C) && return _finishempty!(C)
     fofnoargs = f()
     if _iszero(fofnoargs) # f() is zero, so empty C
@@ -106,14 +107,13 @@ function broadcast!(f::Tf, C::SparseVecOrMat) where Tf
     end
     return C
 end
-function broadcast!(f::Tf, C::SparseVecOrMat, A::SparseVecOrMat, Bs::Vararg{SparseVecOrMat,N}) where {Tf,N}
-    _aresameshape(C, A, Bs...) && return _noshapecheck_map!(f, C, A, Bs...)
-    Base.Broadcast.check_broadcast_indices(axes(C), A, Bs...)
-    fofzeros = f(_zeros_eltypes(A, Bs...)...)
-    fpreszeros = _iszero(fofzeros)
-    return fpreszeros ? _broadcast_zeropres!(f, C, A, Bs...) :
-                        _broadcast_notzeropres!(f, fofzeros, C, A, Bs...)
+function broadcast!(f, dest::SparseVecOrMat, ::Void, A, Bs::Vararg{Any,N}) where N
+    if isa(f, typeof(identity)) && N == 0 && isa(A, Number)
+        return fill!(dest, A)
+    end
+    return spbroadcast_args!(f, dest, Broadcast.combine_styles(A, Bs...), A, Bs...)
 end
+
 # the following three similar defs are necessary for type stability in the mixed vector/matrix case
 broadcast(f::Tf, A::SparseVector, Bs::Vararg{SparseVector,N}) where {Tf,N} =
     _aresameshape(A, Bs...) ? _noshapecheck_map(f, A, Bs...) : _diffshape_broadcast(f, A, Bs...)
@@ -1005,18 +1005,18 @@ Broadcast.BroadcastStyle(::SparseMatStyle, ::Broadcast.DefaultArrayStyle{N}) whe
 broadcast(f, ::PromoteToSparse, ::Void, ::Void, As::Vararg{Any,N}) where {N} =
     broadcast(f, map(_sparsifystructured, As)...)
 
-# ambiguity resolution
-broadcast!(::typeof(identity), dest::SparseVecOrMat, x::Number) =
-    fill!(dest, x)
-broadcast!(f, dest::SparseVecOrMat, x::Number...) =
-    spbroadcast_args!(f, dest, SPVM, x...)
-
 # For broadcast! with ::Any inputs, we need a layer of indirection to determine whether
 # the inputs can be promoted to SparseVecOrMat. If it's just SparseVecOrMat and scalars,
 # we can handle it here, otherwise see below for the promotion machinery.
-broadcast!(f, dest::SparseVecOrMat, mixedsrcargs::Vararg{Any,N}) where N =
-    spbroadcast_args!(f, dest, Broadcast.combine_styles(mixedsrcargs...), mixedsrcargs...)
-function spbroadcast_args!(f, dest, ::Type{SPVM}, mixedsrcargs::Vararg{Any,N}) where N
+function spbroadcast_args!(f::Tf, C, ::SPVM, A::SparseVecOrMat, Bs::Vararg{SparseVecOrMat,N}) where {Tf,N}
+    _aresameshape(C, A, Bs...) && return _noshapecheck_map!(f, C, A, Bs...)
+    Base.Broadcast.check_broadcast_indices(axes(C), A, Bs...)
+    fofzeros = f(_zeros_eltypes(A, Bs...)...)
+    fpreszeros = _iszero(fofzeros)
+    return fpreszeros ? _broadcast_zeropres!(f, C, A, Bs...) :
+                        _broadcast_notzeropres!(f, fofzeros, C, A, Bs...)
+end
+function spbroadcast_args!(f, dest, ::SPVM, mixedsrcargs::Vararg{Any,N}) where N
     # mixedsrcargs contains nothing but SparseVecOrMat and scalars
     parevalf, passedsrcargstup = capturescalars(f, mixedsrcargs)
     return broadcast!(parevalf, dest, passedsrcargstup...)

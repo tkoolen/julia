@@ -242,12 +242,6 @@ broadcast_indices
 # special cases defined for performance
 broadcast(f, x::Number...) = f(x...)
 @inline broadcast(f, t::NTuple{N,Any}, ts::Vararg{NTuple{N,Any}}) where {N} = map(f, t, ts...)
-@inline broadcast!(::typeof(identity), x::AbstractArray{T,N}, y::AbstractArray{S,N}) where {T,S,N} =
-    Base.indices(x) == Base.indices(y) ? copy!(x, y) : _broadcast!(identity, x, y)
-
-# special cases for "X .= ..." (broadcast!) assignments
-broadcast!(::typeof(identity), X::AbstractArray, x::Number) = fill!(X, x)
-broadcast!(f, X::AbstractArray, x::Number...) = (@inbounds for I in eachindex(X); X[I] = f(x...); end; X)
 
 ## logic for deciding the BroadcastStyle
 # Dimensionality: computing max(M,N) in the type domain so we preserve inferrability
@@ -448,8 +442,18 @@ Note that `dest` is only used to store the result, and does not supply
 arguments to `f` unless it is also listed in the `As`,
 as in `broadcast!(f, A, A, B)` to perform `A[:] = broadcast(f, A, B)`.
 """
-@inline broadcast!(f, C::AbstractArray, A, Bs::Vararg{Any,N}) where {N} =
-    _broadcast!(f, C, A, Bs...)
+broadcast!(f, dest, As...) = broadcast!(f, dest, combine_styles(As...), As...)
+broadcast!(f, dest, ::BroadcastStyle, As...) = broadcast!(f, dest, nothing, As...)
+@inline function broadcast!(f, C, ::Void, A, Bs::Vararg{Any,N}) where N
+    if isa(f, typeof(identity)) && N == 0
+        if isa(A, Number)
+            return fill!(C, A)
+        elseif isa(C, AbstractArray) && isa(A, AbstractArray) && Base.indices(C) == Base.indices(A)
+            return copy!(C, A)
+        end
+    end
+    return _broadcast!(f, C, A, Bs...)
+end
 
 # This indirection allows size-dependent implementations (e.g., see the copying `identity`
 # specialization above)

@@ -94,7 +94,7 @@ end
 broadcast(f::Tf, A::SparseVector) where {Tf} = _noshapecheck_map(f, A)
 broadcast(f::Tf, A::SparseMatrixCSC) where {Tf} = _noshapecheck_map(f, A)
 
-function broadcast!(f::Tf, C::SparseVecOrMat, ::Void) where Tf
+@inline function broadcast!(f::Tf, C::SparseVecOrMat, ::BroadcastStyle) where Tf
     isempty(C) && return _finishempty!(C)
     fofnoargs = f()
     if _iszero(fofnoargs) # f() is zero, so empty C
@@ -107,11 +107,16 @@ function broadcast!(f::Tf, C::SparseVecOrMat, ::Void) where Tf
     end
     return C
 end
-function broadcast!(f, dest::SparseVecOrMat, ::Void, A, Bs::Vararg{Any,N}) where N
-    if isa(f, typeof(identity)) && N == 0 && isa(A, Number)
-        return fill!(dest, A)
+@inline function broadcast!(f::Tf, dest::SparseVecOrMat, style::BroadcastStyle, As::Vararg{Any,N}) where {Tf,N}
+    if f isa typeof(identity) && N == 1
+        A = As[1]
+        if A isa Number
+            return fill!(dest, A)
+        elseif A isa AbstractArray && Base.indices(dest) == Base.indices(A)
+            return copy!(dest, A)
+        end
     end
-    return spbroadcast_args!(f, dest, Broadcast.combine_styles(A, Bs...), A, Bs...)
+    return spbroadcast_args!(f, dest, style, As...)
 end
 
 # the following three similar defs are necessary for type stability in the mixed vector/matrix case

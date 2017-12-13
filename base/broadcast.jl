@@ -442,21 +442,36 @@ Note that `dest` is only used to store the result, and does not supply
 arguments to `f` unless it is also listed in the `As`,
 as in `broadcast!(f, A, A, B)` to perform `A[:] = broadcast(f, A, B)`.
 """
-broadcast!(f, dest, As...) = broadcast!(f, dest, combine_styles(As...), As...)
-broadcast!(f, dest, ::BroadcastStyle, As...) = broadcast!(f, dest, nothing, As...)
-@inline function broadcast!(f, C, ::Void, A, Bs::Vararg{Any,N}) where N
-    if isa(f, typeof(identity)) && N == 0
-        if isa(A, Number)
-            return fill!(C, A)
-        elseif isa(C, AbstractArray) && isa(A, AbstractArray) && Base.indices(C) == Base.indices(A)
-            return copy!(C, A)
+@inline broadcast!(f, dest, As...) = broadcast!(f, dest, combine_styles(As...), As...)
+@inline broadcast!(f, dest, ::BroadcastStyle, As...) = broadcast!(f, dest, nothing, As...)
+
+# Default behavior (separated out so that it can be called by users who want to extend broadcast!).
+@inline function broadcast!(f, dest, ::Void, As::Vararg{Any, N}) where N
+    if f isa typeof(identity) && N == 1
+        A = As[1]
+        if A isa AbstractArray && Base.indices(dest) == Base.indices(A)
+            return copy!(dest, A)
         end
     end
-    return _broadcast!(f, C, A, Bs...)
+    return _broadcast!(f, dest, As...)
 end
 
-# This indirection allows size-dependent implementations (e.g., see the copying `identity`
-# specialization above)
+# Optimization for the all-Scalar case.
+@inline function broadcast!(f, dest, ::Scalar, As::Vararg{Any, N}) where N
+    if dest isa AbstractArray
+        if f isa typeof(identity) && N == 1
+            return fill!(dest, As[1])
+        else
+            @inbounds for I in eachindex(dest)
+                dest[I] = f(As...)
+            end
+            return dest
+        end
+    end
+    return _broadcast!(f, dest, As...)
+end
+
+# This indirection allows size-dependent implementations.
 @inline function _broadcast!(f, C, A, Bs::Vararg{Any,N}) where N
     shape = broadcast_indices(C)
     @boundscheck check_broadcast_indices(shape, A, Bs...)

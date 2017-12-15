@@ -94,31 +94,6 @@ end
 broadcast(f::Tf, A::SparseVector) where {Tf} = _noshapecheck_map(f, A)
 broadcast(f::Tf, A::SparseMatrixCSC) where {Tf} = _noshapecheck_map(f, A)
 
-@inline function broadcast!(f::Tf, C::SparseVecOrMat, ::BroadcastStyle) where Tf
-    isempty(C) && return _finishempty!(C)
-    fofnoargs = f()
-    if _iszero(fofnoargs) # f() is zero, so empty C
-        trimstorage!(C, 0)
-        _finishempty!(C)
-    else # f() is nonzero, so densify C and fill with independent calls to f()
-        _densestructure!(C)
-        storedvals(C)[1] = fofnoargs
-        broadcast!(f, view(storedvals(C), 2:length(storedvals(C))))
-    end
-    return C
-end
-@inline function broadcast!(f::Tf, dest::SparseVecOrMat, style::BroadcastStyle, As::Vararg{Any,N}) where {Tf,N}
-    if f isa typeof(identity) && N == 1
-        A = As[1]
-        if A isa Number
-            return fill!(dest, A)
-        elseif A isa AbstractArray && Base.indices(dest) == Base.indices(A)
-            return copy!(dest, A)
-        end
-    end
-    return spbroadcast_args!(f, dest, style, As...)
-end
-
 # the following three similar defs are necessary for type stability in the mixed vector/matrix case
 broadcast(f::Tf, A::SparseVector, Bs::Vararg{SparseVector,N}) where {Tf,N} =
     _aresameshape(A, Bs...) ? _noshapecheck_map(f, A, Bs...) : _diffshape_broadcast(f, A, Bs...)
@@ -933,6 +908,32 @@ function broadcast(f, ::SPVM, ::Void, ::Void, mixedargs::Vararg{Any,N}) where N
     parevalf, passedargstup = capturescalars(f, mixedargs)
     return broadcast(parevalf, passedargstup...)
 end
+
+@inline function broadcast!(f::Tf, ::Broadcast.InPlaceBroadcastStyle{<:Union{SparseVector, SparseMatrixCSC}, SPVM}, C) where Tf
+    isempty(C) && return _finishempty!(C)
+    fofnoargs = f()
+    if _iszero(fofnoargs) # f() is zero, so empty C
+        trimstorage!(C, 0)
+        _finishempty!(C)
+    else # f() is nonzero, so densify C and fill with independent calls to f()
+        _densestructure!(C)
+        storedvals(C)[1] = fofnoargs
+        broadcast!(f, view(storedvals(C), 2:length(storedvals(C))))
+    end
+    return C
+end
+@inline function broadcast!(f::Tf, ::Broadcast.InPlaceBroadcastStyle{<:Union{SparseVector, SparseMatrixCSC}, S}, dest, As::Vararg{Any,N}) where {Tf,N,S<:SPVM}
+    if f isa typeof(identity) && N == 1
+        A = As[1]
+        if A isa Number
+            return fill!(dest, A)
+        elseif A isa AbstractArray && Base.indices(dest) == Base.indices(A)
+            return copy!(dest, A)
+        end
+    end
+    return spbroadcast_args!(f, dest, S, As...)
+end
+
 # for broadcast! see (11)
 
 # capturescalars takes a function (f) and a tuple of mixed sparse vectors/matrices and
@@ -1013,7 +1014,7 @@ broadcast(f, ::PromoteToSparse, ::Void, ::Void, As::Vararg{Any,N}) where {N} =
 # For broadcast! with ::Any inputs, we need a layer of indirection to determine whether
 # the inputs can be promoted to SparseVecOrMat. If it's just SparseVecOrMat and scalars,
 # we can handle it here, otherwise see below for the promotion machinery.
-function spbroadcast_args!(f::Tf, C, ::SPVM, A::SparseVecOrMat, Bs::Vararg{SparseVecOrMat,N}) where {Tf,N}
+@inline function spbroadcast_args!(f::Tf, C, ::SPVM, A::SparseVecOrMat, Bs::Vararg{SparseVecOrMat,N}) where {Tf,N}
     _aresameshape(C, A, Bs...) && return _noshapecheck_map!(f, C, A, Bs...)
     Base.Broadcast.check_broadcast_indices(indices(C), A, Bs...)
     fofzeros = f(_zeros_eltypes(A, Bs...)...)
@@ -1021,15 +1022,15 @@ function spbroadcast_args!(f::Tf, C, ::SPVM, A::SparseVecOrMat, Bs::Vararg{Spars
     return fpreszeros ? _broadcast_zeropres!(f, C, A, Bs...) :
                         _broadcast_notzeropres!(f, fofzeros, C, A, Bs...)
 end
-function spbroadcast_args!(f, dest, ::SPVM, mixedsrcargs::Vararg{Any,N}) where N
+@inline function spbroadcast_args!(f, dest, ::SPVM, mixedsrcargs::Vararg{Any,N}) where N
     # mixedsrcargs contains nothing but SparseVecOrMat and scalars
     parevalf, passedsrcargstup = capturescalars(f, mixedsrcargs)
     return broadcast!(parevalf, dest, passedsrcargstup...)
 end
-function spbroadcast_args!(f, dest, ::PromoteToSparse, mixedsrcargs::Vararg{Any,N}) where N
+@inline function spbroadcast_args!(f, dest, ::PromoteToSparse, mixedsrcargs::Vararg{Any,N}) where N
     broadcast!(f, dest, map(_sparsifystructured, mixedsrcargs)...)
 end
-function spbroadcast_args!(f, dest, ::Any, mixedsrcargs::Vararg{Any,N}) where N
+@inline function spbroadcast_args!(f, dest, ::Any, mixedsrcargs::Vararg{Any,N}) where N
     # Fallback. From a performance perspective would it be best to densify?
     Broadcast._broadcast!(f, dest, mixedsrcargs...)
 end

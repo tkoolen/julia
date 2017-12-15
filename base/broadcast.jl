@@ -433,6 +433,11 @@ end
     end
 end
 
+struct InPlaceBroadcastStyle{D, S<:BroadcastStyle}
+    InPlaceBroadcastStyle{D}(::S) where {D, S<:BroadcastStyle} = new{D, S}()
+    InPlaceBroadcastStyle(::D, As...) where {D} = InPlaceBroadcastStyle{D}(combine_styles(As...))
+end
+
 """
     broadcast!(f, dest, As...)
 
@@ -442,31 +447,25 @@ Note that `dest` is only used to store the result, and does not supply
 arguments to `f` unless it is also listed in the `As`,
 as in `broadcast!(f, A, A, B)` to perform `A[:] = broadcast(f, A, B)`.
 """
-@inline broadcast!(f, dest, As...) = broadcast!(f, dest, combine_styles(As...), As...)
-@inline broadcast!(f, dest, ::BroadcastStyle, As...) = broadcast!(f, dest, nothing, As...)
-
-# Default behavior (separated out so that it can be called by users who want to extend broadcast!).
-@inline function broadcast!(f, dest, ::Void, As::Vararg{Any, N}) where N
-    if f isa typeof(identity) && N == 1
-        A = As[1]
-        if A isa AbstractArray && Base.indices(dest) == Base.indices(A)
-            return copy!(dest, A)
+@inline broadcast!(f, dest, As...) = broadcast!(f, InPlaceBroadcastStyle(dest, As...), dest, As...)
+@inline function broadcast!(f, ::InPlaceBroadcastStyle, dest, As::Vararg{Any, N}) where N
+    if f isa typeof(identity) && N == 1 && As[1] isa AbstractArray
+        if Base.indices(dest) == Base.indices(As[1])
+            return copy!(dest, As[1])
         end
     end
     return _broadcast!(f, dest, As...)
 end
 
 # Optimization for the all-Scalar case.
-@inline function broadcast!(f, dest, ::Scalar, As::Vararg{Any, N}) where N
-    if dest isa AbstractArray
-        if f isa typeof(identity) && N == 1
-            return fill!(dest, As[1])
-        else
-            @inbounds for I in eachindex(dest)
-                dest[I] = f(As...)
-            end
-            return dest
+@inline function broadcast!(f, ::InPlaceBroadcastStyle{<:AbstractArray, Scalar}, dest, As::Vararg{Any, N}) where N
+    if f isa typeof(identity) && N == 1
+        return fill!(dest, As[1])
+    else
+        @inbounds for I in eachindex(dest)
+            dest[I] = f(As...)
         end
+        return dest
     end
     return _broadcast!(f, dest, As...)
 end

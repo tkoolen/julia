@@ -94,31 +94,6 @@ end
 broadcast(f::Tf, A::SparseVector) where {Tf} = _noshapecheck_map(f, A)
 broadcast(f::Tf, A::SparseMatrixCSC) where {Tf} = _noshapecheck_map(f, A)
 
-@inline function broadcast!(f::Tf, C::SparseVecOrMat, ::BroadcastStyle) where Tf
-    isempty(C) && return _finishempty!(C)
-    fofnoargs = f()
-    if _iszero(fofnoargs) # f() is zero, so empty C
-        trimstorage!(C, 0)
-        _finishempty!(C)
-    else # f() is nonzero, so densify C and fill with independent calls to f()
-        _densestructure!(C)
-        storedvals(C)[1] = fofnoargs
-        broadcast!(f, view(storedvals(C), 2:length(storedvals(C))))
-    end
-    return C
-end
-@inline function broadcast!(f::Tf, dest::SparseVecOrMat, style::BroadcastStyle, As::Vararg{Any,N}) where {Tf,N}
-    if f isa typeof(identity) && N == 1
-        A = As[1]
-        if A isa Number
-            return fill!(dest, A)
-        elseif A isa AbstractArray && Base.axes(dest) == Base.axes(A)
-            return copy!(dest, A)
-        end
-    end
-    return spbroadcast_args!(f, dest, style, As...)
-end
-
 # the following three similar defs are necessary for type stability in the mixed vector/matrix case
 broadcast(f::Tf, A::SparseVector, Bs::Vararg{SparseVector,N}) where {Tf,N} =
     _aresameshape(A, Bs...) ? _noshapecheck_map(f, A, Bs...) : _diffshape_broadcast(f, A, Bs...)
@@ -928,12 +903,36 @@ Broadcast.BroadcastStyle(::SparseMatStyle, ::SparseVecStyle) = SparseMatStyle()
 Broadcast.BroadcastStyle(::SparseVecStyle, ::Broadcast.Style{Tuple}) = Broadcast.DefaultArrayStyle{1}()
 Broadcast.BroadcastStyle(::SparseMatStyle, ::Broadcast.Style{Tuple}) = Broadcast.DefaultArrayStyle{2}()
 
-# broadcast entry points for combinations of sparse arrays and other (scalar) types
+# broadcast[!] entry points for combinations of sparse arrays and other (scalar) types
 function broadcast(f, ::SPVM, ::Void, ::Void, mixedargs::Vararg{Any,N}) where N
     parevalf, passedargstup = capturescalars(f, mixedargs)
     return broadcast(parevalf, passedargstup...)
 end
-# for broadcast! see (11)
+
+@inline function broadcast!(f::Tf, C::SparseVecOrMat, ::SPVM) where Tf
+    isempty(C) && return _finishempty!(C)
+    fofnoargs = f()
+    if _iszero(fofnoargs) # f() is zero, so empty C
+        trimstorage!(C, 0)
+        _finishempty!(C)
+    else # f() is nonzero, so densify C and fill with independent calls to f()
+        _densestructure!(C)
+        storedvals(C)[1] = fofnoargs
+        broadcast!(f, view(storedvals(C), 2:length(storedvals(C))))
+    end
+    return C
+end
+@inline function broadcast!(f::Tf, dest::SparseVecOrMat, style::SPVM, As::Vararg{Any,N}) where {Tf,N}
+    if f isa typeof(identity) && N == 1
+        A = As[1]
+        if A isa Number
+            return fill!(dest, A)
+        elseif A isa AbstractArray && Base.axes(dest) == Base.axes(A)
+            return copy!(dest, A)
+        end
+    end
+    return spbroadcast_args!(f, dest, style, As...)
+end
 
 # capturescalars takes a function (f) and a tuple of mixed sparse vectors/matrices and
 # broadcast scalar arguments (mixedargs), and returns a function (parevalf, i.e. partially

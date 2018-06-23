@@ -346,7 +346,7 @@ julia> step(1:2:10)
 julia> step(2.5:0.3:10.9)
 0.3
 
-julia> step(linspace(2.5,10.9,85))
+julia> step(range(2.5, stop=10.9, length=85))
 0.1
 ```
 """

@@ -1340,7 +1340,7 @@ julia> b = collect(2:4:10)
   6
  10
 
-julia> findin(a,b) # 10 is the only common element
+julia> findall(in(b), a) # 10 is the only common element
 1-element Array{Int64,1}:
  4
 ```

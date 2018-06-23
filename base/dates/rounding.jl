@@ -85,13 +85,13 @@ For convenience, `p` may be a type instead of a value: `floor(dt, Dates.Hour)` i
 for `floor(dt, Dates.Hour(1))`.
 
 ```jldoctest
-julia> floor(Date(1985, 8, 16), Dates.Month)
+julia> floor(Date(1985, 8, 16), digits=Dates.Month)
 1985-08-01
 
-julia> floor(DateTime(2013, 2, 13, 0, 31, 20), Dates.Minute(15))
+julia> floor(DateTime(2013, 2, 13, 0, 31, 20), digits=Dates.Minute(15))
 2013-02-13T00:30:00
 
-julia> floor(DateTime(2016, 8, 6, 12, 0, 0), Dates.Day)
+julia> floor(DateTime(2016, 8, 6, 12, 0, 0), digits=Dates.Day)
 2016-08-06T00:00:00
 ```
 """
@@ -106,13 +106,13 @@ For convenience, `p` may be a type instead of a value: `ceil(dt, Dates.Hour)` is
 for `ceil(dt, Dates.Hour(1))`.
 
 ```jldoctest
-julia> ceil(Date(1985, 8, 16), Dates.Month)
+julia> ceil(Date(1985, 8, 16), digits=Dates.Month)
 1985-09-01
 
-julia> ceil(DateTime(2013, 2, 13, 0, 31, 20), Dates.Minute(15))
+julia> ceil(DateTime(2013, 2, 13, 0, 31, 20), digits=Dates.Minute(15))
 2013-02-13T00:45:00
 
-julia> ceil(DateTime(2016, 8, 6, 12, 0, 0), Dates.Day)
+julia> ceil(DateTime(2016, 8, 6, 12, 0, 0), digits=Dates.Day)
 2016-08-07T00:00:00
 ```
 """
@@ -142,13 +142,13 @@ For convenience, `p` may be a type instead of a value: `round(dt, Dates.Hour)` i
 for `round(dt, Dates.Hour(1))`.
 
 ```jldoctest
-julia> round(Date(1985, 8, 16), Dates.Month)
+julia> round(Date(1985, 8, 16), digits=Dates.Month)
 1985-08-01
 
-julia> round(DateTime(2013, 2, 13, 0, 31, 20), Dates.Minute(15))
+julia> round(DateTime(2013, 2, 13, 0, 31, 20), digits=Dates.Minute(15))
 2013-02-13T00:30:00
 
-julia> round(DateTime(2016, 8, 6, 12, 0, 0), Dates.Day)
+julia> round(DateTime(2016, 8, 6, 12, 0, 0), digits=Dates.Day)
 2016-08-07T00:00:00
 ```
 

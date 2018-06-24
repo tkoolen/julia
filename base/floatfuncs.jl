@@ -79,10 +79,10 @@ rounded.
 before if negative). `round(x, digits, base)` rounds using a base other than 10.
 
 ```jldoctest
-julia> round(pi, 2)
+julia> round(pi, digits=2)
 3.14
 
-julia> round(pi, 3, 2)
+julia> round(pi, digits=3, base=2)
 3.125
 ```
 

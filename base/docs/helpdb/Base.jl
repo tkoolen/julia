@@ -5072,7 +5072,7 @@ Determine whether the given generic function has a method matching the given
 [`Tuple`](:obj:`Tuple`) of argument types.
 
 ```jldoctest
-julia> method_exists(length, Tuple{Array})
+julia> hasmethod(length, Tuple{Array})
 true
 ```
 """
